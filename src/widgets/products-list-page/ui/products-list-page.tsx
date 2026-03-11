@@ -86,12 +86,14 @@ export const ProductsListPage = () => {
       const response = await axios.get<ProductListItemDto[] | ProductListResponseDto>(
         `${PRODUCTS_ENDPOINT}&limit=${PAGE_SIZE}&offset=${products.length}`,
       );
-      if (Array.isArray(response.data)) {
-        setProducts((prev) => mergeUniqueById(prev, response.data));
-        setTotalCount((prev) => (prev > 0 ? prev : products.length + response.data.length));
+      const payload = response.data;
+      if (Array.isArray(payload)) {
+        setProducts((prev) => mergeUniqueById(prev, payload));
+        setTotalCount((prev) => (prev > 0 ? prev : products.length + payload.length));
       } else {
-        setProducts((prev) => mergeUniqueById(prev, response.data.result ?? []));
-        setTotalCount(response.data.count ?? 0);
+        const nextItems = payload.result ?? [];
+        setProducts((prev) => mergeUniqueById(prev, nextItems));
+        setTotalCount(payload.count ?? 0);
       }
     } catch {
       setError("Failed to load next page from TableCRM API.");
